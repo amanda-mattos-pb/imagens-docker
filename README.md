@@ -21,7 +21,7 @@ Realizar o deploy completo de uma aplicação fullstack em um cluster Kubernetes
 ## 🧱 Estrutura do Repositório
 
 ```
-projeto-k8s-deploy/
+imagens-docker/
 ├── README.md
 ├── namespace.yaml
 ├── frontend/
