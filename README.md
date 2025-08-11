@@ -128,7 +128,7 @@ Com o cluster e o Ingress prontos, aplique os manifestos do projeto na ordem cor
 ```bash
 git https://github.com/amanda-mattos-pb/imagens-docker.git
 
-#va para pasta  /projeto-k8s-deploy
+#va para pasta  /imagens-docker
 
 # 2. Crie os Namespaces
 
