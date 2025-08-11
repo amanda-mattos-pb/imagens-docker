@@ -1,7 +1,6 @@
 ---
 
 # Projeto Kubernetes: Deploy Fullstack com React + Flask + PostgreSQL
-
 ## 👥 Integrantes da Equipe
 - Amanda Laryssa Rodrigues de Mattos
 - José Wilquer Nascimento de Lima
