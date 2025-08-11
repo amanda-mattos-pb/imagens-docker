@@ -36,7 +36,7 @@ spec:
     spec:
       containers:
         - name: frontend-container
-          image: amandamattosr/iftech2025ex:latest  # Imagem atualizada
+          image: amandamattosr/frontend:latest  # Imagem atualizada
           ports:
             - containerPort: 80
           envFrom:
