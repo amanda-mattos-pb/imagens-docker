@@ -78,84 +78,61 @@ Antes de aplicar os manifestos do Kubernetes, é necessário construir as imagen
     ```
 3.  **Importante:** Após publicar as imagens, atualize os arquivos `backend/deployment.yaml` e `frontend/deployment.yaml` com os nomes corretos das suas imagens.
 
-### 1.2. Configurar o Cluster Kubernetes com Kind
+### 1. Clone este repositório ou copie o script `setup-imagem.sh`
 
-Para que o Ingress funcione corretamente em um ambiente local, o cluster Kind precisa ser criado com um mapeamento de portas.
+Crie um arquivo chamado `setup-imagem.sh`` e cole o seguinte conteúdo dentro dele:
 
-1.  Crie um arquivo de configuração `kind-config.yaml`:
-    ```yaml
-    # kind-config.yaml
-    kind: Cluster
-    apiVersion: kind.x-k8s.io/v1alpha4
-    nodes:
-    - role: control-plane
-      extraPortMappings:
-      - containerPort: 80
-        hostPort: 80
-        protocol: TCP
-      - containerPort: 443
-        hostPort: 443
-        protocol: TCP
-    ```
-
-2.  Crie o cluster Kind usando o arquivo de configuração:
-    ```bash
-       kind create cluster --name projeto-kubernates --config kind-config.yaml
-    ```
-
-### 1.3. Instalar o NGINX Ingress Controller
-
-O cluster precisa de um Ingress Controller para gerenciar o acesso externo.
 ```bash
-# Aplicar o manifesto de instalação do NGINX Ingress para Kind
+#!/bin/bash
+
+set -e
+set -o pipefail
+
+CLUSTER_NAME="projeto-kubernates"
+REPO_URL="https://github.com/amanda-mattos-pb/imagens-docker.git"
+REPO_DIR="imagens-docker"
+
+echo "🔧 Criando cluster Kind com nome: $CLUSTER_NAME..."
+kind create cluster --name $CLUSTER_NAME --config kind-config.yaml
+
+echo "🌐 Instalando NGINX Ingress Controller..."
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
 
-# Aguardar o Ingress Controller ficar pronto antes de continuar
-
+echo "⏳ Aguardando o Ingress Controller ficar pronto..."
 kubectl wait --namespace ingress-nginx \
   --for=condition=ready pod \
   --selector=app.kubernetes.io/component=controller \
   --timeout=120s
 
-```
+echo "📦 Clonando o repositório com os manifestos..."
+git clone $REPO_URL
 
-### 1.4. Aplicar os Manifestos da Aplicação
+cd $REPO_DIR
 
-Com o cluster e o Ingress prontos, aplique os manifestos do projeto na ordem correta para garantir que as dependências (como os Namespaces) sejam criadas primeiro.
+echo "📁 Criando Namespaces..."
+kubectl apply -f namespace.yaml
 
-```bash
-### 1. Clone o repositório
-```bash
-git https://github.com/amanda-mattos-pb/imagens-docker.git
+echo "🗄️ Criando recursos do Banco de Dados..."
+kubectl apply -f database/
 
-#va para pasta  /imagens-docker
+echo "🔧 Criando recursos do Backend..."
+kubectl apply -f backend/
 
-# 2. Crie os Namespaces
+echo "🎨 Criando recursos do Frontend..."
+kubectl apply -f frontend/
 
-  kubectl apply -f namespace.yaml
+echo "🌍 Aplicando regras de Ingress..."
+kubectl apply -f ingress/
 
-
-# 2. Crie os recursos do Banco de Dados
-
-  kubectl apply -f database/
-
-# 3. Crie os recursos do Backend
-
-  kubectl apply -f backend/
-
-# 4. Crie os recursos do Frontend
-
-  kubectl apply -f frontend/
-
-# 5. Crie a regra de Ingress
-
-  kubectl apply -f ingress/
-
-
-```
-
+echo "✅ Tudo pronto! O cluster Kind está configurado com a aplicação."
 ### 1.5. Configurar o DNS Local
+2. Torne o script executável
+'''bash
+  chmod +x setup-imagem.sh
+3. Execute o script
 
+  ./setup-imagem.sh`
+'''
 Para acessar a aplicação usando um domínio amigável, adicione a seguinte linha ao seu arquivo de hosts:
 
 *   **Linux/macOS:** `/etc/hosts`
