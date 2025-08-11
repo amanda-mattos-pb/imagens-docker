@@ -126,12 +126,13 @@ kubectl apply -f ingress/
 
 echo "✅ Tudo pronto! O cluster Kind está configurado com a aplicação."
 ### 1.5. Configurar o DNS Local
+
 2. Torne o script executável
 '''bash
   chmod +x setup-imagem.sh
 3. Execute o script
 
-  ./setup-imagem.sh`
+  ./setup-imagem.sh
 '''
 Para acessar a aplicação usando um domínio amigável, adicione a seguinte linha ao seu arquivo de hosts:
 
