@@ -6,7 +6,7 @@ kind: Deployment
 
 metadata:
   name: frontend        
-  namespace: app0ns         
+  namespace: app-ns         
 
 spec:
   replicas: 2            
@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
         - name: frontend                
-          image: amandamattosr/frontend-ajsute:latest  
+          image: amandamattosr/frontend-ajuste:latest  
           ports:
             - containerPort: 80          
           env:
