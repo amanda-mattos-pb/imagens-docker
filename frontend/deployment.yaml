@@ -38,7 +38,7 @@ kind: Service
 
 metadata:
   name: frontend         
-  namespace: app        
+  namespace: app-ns        
 
 spec:
   ports:
