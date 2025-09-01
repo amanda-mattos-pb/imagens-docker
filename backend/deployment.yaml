@@ -1,17 +1,4 @@
-apiVersion: v1
-kind: Service
-metadata:
-  name: backend-service
-  namespace: app-ns
-spec:
-  selector:
-    app: backend
-  ports:
-    - protocol: TCP
-      port: 5000
-      targetPort: 5000
----
-apiVersion: apps/v1
+piVersion: apps/v1
 kind: Deployment
 metadata:
   name: backend-deployment
@@ -28,20 +15,23 @@ spec:
     spec:
       containers:
         - name: backend-container
-          image: andamattosr/backend-ajuste:latest  # Imagem atualizada
+          image: amandamattosr/backend-ajuste:latest
           ports:
             - containerPort: 5000
           envFrom:
             - configMapRef:
                 name: backend-configmap
-          env:
-            - name: DB_USER
-              valueFrom:
-                secretKeyRef:
-                  name: postgres-secret
-                  key: POSTGRES_USER
-            - name: DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: postgres-secret
-                  key: POSTGRES_PASSWORD
+            - secretRef:
+                name: backend-secret
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 5
+            periodSeconds: 10
