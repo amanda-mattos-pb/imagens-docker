@@ -51,7 +51,7 @@ spec:
                 -c "CREATE DATABASE mensagensdb"
       containers:
         - name: backend
-          image: amelus99/backend:latest
+          image: amandamattosr/backend-ajuste:latest
           ports:
             - containerPort: 5000
           envFrom:
