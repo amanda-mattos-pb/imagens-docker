@@ -4,45 +4,34 @@ metadata:
   name: postgres
   namespace: db-ns
 spec:
-  serviceName: "postgres-service"
-  replicas: 1
+  serviceName: "postgres"  # Nome do serviço headless que garante DNS estável para cada pod (postgres-0, postgres-1, etc).
+  replicas: 1               # Número de réplicas/pods desejados. Aqui é apenas 1, suficiente para ambiente de testes.
   selector:
     matchLabels:
-      app: postgres
-  template:
+      app: postgres         # Seleciona os pods com essa label para associar ao StatefulSet.
+
+  template:                 # Template que define como os pods devem ser criados.
     metadata:
       labels:
-        app: postgres
+        app: postgres       # Rótulo (label) usado para identificar os pods.
     spec:
       containers:
-        - name: postgres-container
-          image: postgres:15
+        - name: postgres    # Nome do container dentro do pod.
+          image: postgres:15   # Imagem Docker do PostgreSQL versão 15.
           ports:
-            - containerPort: 5432
-          env:
-            - name: POSTGRES_DB
-              valueFrom:
-                secretKeyRef:
-                  name: backend-secret
-                  key: POSTGRES_DB
-            - name: POSTGRES_USER
-              valueFrom:
-                secretKeyRef:
-                  name: backend-secret
-                  key: DB_USER
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: backend-secret
-                  key: DB_PASSWORD
+            - containerPort: 5432  # Porta padrão de escuta do PostgreSQL.
+          envFrom:
+            - secretRef:
+                name: postgres-secret  # Refere-se a um Secret contendo variáveis sensíveis como usuário e senha do banco.
           volumeMounts:
-            - name: postgres-storage
-              mountPath: /var/lib/postgresql/data
-  volumeClaimTemplates:
+            - name: postgres-data         # Nome do volume a ser montado.
+              mountPath: /var/lib/postgresql/data  # Caminho onde o PostgreSQL armazena os dados.
+
+  volumeClaimTemplates:     # Define os volumes persistentes que cada réplica vai usar.
     - metadata:
-        name: postgres-storage
+        name: postgres-data  # Nome da reivindicação de volume.
       spec:
-        accessModes: ["ReadWriteOnce"]
+        accessModes: [ "ReadWriteOnce" ]  # O volume só pode ser montado por um único nó de cada vez.
         resources:
           requests:
-            storage: 1Gi
+            storage: 1Gi 
