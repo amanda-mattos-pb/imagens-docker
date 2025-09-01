@@ -1,35 +1,47 @@
 apiVersion: apps/v1
+
+
 kind: Deployment
+
+
 metadata:
-  name: frontend-deployment
-  namespace: app-ns
+  name: frontend        
+  namespace: app0ns         
+
 spec:
-  replicas: 2
-  selector:
+  replicas: 2            
+  selector:              
     matchLabels:
-      app: frontend
-  template:
+      app: frontend      
+
+  template:             
     metadata:
       labels:
-        app: frontend
+        app: frontend    
+
     spec:
       containers:
-        - name: frontend-container
-          image: amandamattosr/frontend-ajuste:latest
+        - name: frontend                
+          image: amandamattosr/frontend-ajsute:latest  
           ports:
-            - containerPort: 80
-          envFrom:
-            - configMapRef:
-                name: frontend-configmap
-          livenessProbe:
-            httpGet:
-              path: /
-              port: 80
-            initialDelaySeconds: 5
-            periodSeconds: 10
-          readinessProbe:
-            httpGet:
-              path: /
-              port: 80
-            initialDelaySeconds: 5
-            periodSeconds: 10
+            - containerPort: 80          
+          env:
+            - name: VITE_API_URL         
+              value: "http://localhost:5000" 
+
+---
+
+apiVersion: v1
+
+
+kind: Service
+
+metadata:
+  name: frontend         
+  namespace: app        
+
+spec:
+  ports:
+    - port: 80          
+  selector:
+    app: frontend        
