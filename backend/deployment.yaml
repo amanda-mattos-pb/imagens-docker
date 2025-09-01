@@ -13,25 +13,49 @@ spec:
       labels:
         app: backend
     spec:
+      initContainers:
+        - name: init-db
+          image: postgres:15
+          env:
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: DB_HOST
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: DB_PORT
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: DB_USER
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: DB_PASSWORD
+          command:
+            - sh
+            - -c
+            - |
+              until pg_isready -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER"; do
+                echo "Aguardando PostgreSQL..."
+                sleep 2
+              done
+              PGPASSWORD="$DB_PASSWORD" psql -h "$DB_HOST" -U "$DB_USER" -d postgres -tc \
+                "SELECT 1 FROM pg_database WHERE datname='mensagensdb'" \
+                | grep -q 1 || PGPASSWORD="$DB_PASSWORD" psql -h "$DB_HOST" -U "$DB_USER" -d postgres \
+                -c "CREATE DATABASE mensagensdb"
       containers:
-        - name: backend-container
-          image: amandamattosr/backend-ajuste:latest
+        - name: backend
+          image: amelus99/backend:latest
           ports:
             - containerPort: 5000
           envFrom:
             - configMapRef:
-                name: backend-configmap
+                name: backend-config
             - secretRef:
-                name: backend-secret
-          livenessProbe:
-            httpGet:
-              path: /health
-              port: 5000
-            initialDelaySeconds: 5
-            periodSeconds: 10
-          readinessProbe:
-            httpGet:
-              path: /health
-              port: 5000
-            initialDelaySeconds: 5
-            periodSeconds: 10
+                name: backend-secrets
