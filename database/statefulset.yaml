@@ -1,21 +1,7 @@
-# database/statefulset.yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: postgres-service
-  namespace: db-ns
-spec:
-  selector:
-    app: postgres
-  ports:
-    - protocol: TCP
-      port: 5432 # Porta padrão do Postgres
-      targetPort: 5432
----
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: postgres-statefulset
+  name: postgres
   namespace: db-ns
 spec:
   serviceName: "postgres-service"
@@ -29,26 +15,26 @@ spec:
         app: postgres
     spec:
       containers:
-        - name: postgres
-          image: postgres:13 # Usando uma versão específica da imagem
+        - name: postgres-container
+          image: postgres:15
           ports:
             - containerPort: 5432
           env:
-            - name: POSTGRES_USER
-              valueFrom:
-                secretKeyRef:
-                  name: postgres-secret
-                  key: POSTGRES_USER
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: postgres-secret
-                  key: POSTGRES_PASSWORD
             - name: POSTGRES_DB
               valueFrom:
                 secretKeyRef:
-                  name: postgres-secret
+                  name: backend-secret
                   key: POSTGRES_DB
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secret
+                  key: DB_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secret
+                  key: DB_PASSWORD
           volumeMounts:
             - name: postgres-storage
               mountPath: /var/lib/postgresql/data
@@ -60,4 +46,3 @@ spec:
         resources:
           requests:
             storage: 1Gi
-
