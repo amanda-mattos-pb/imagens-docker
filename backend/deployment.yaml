@@ -28,7 +28,7 @@ spec:
     spec:
       containers:
         - name: backend-container
-          image: amandamattosr/backend:latest  # Imagem atualizada
+          image: andamattosr/backend:latest  # Imagem atualizada
           ports:
             - containerPort: 5000
           envFrom:
